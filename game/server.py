@@ -70,7 +70,7 @@ def initial(word):
  return out
 QUESTIONS=[{'cat':c,'text':w,'hint':h,'initial':initial(w)} for c,w,h in RAW]
 assert len(QUESTIONS)>=40, len(QUESTIONS)
-clients=set(); players={}; current=None; order=[]; idx=-1; ends=0; duration=25; paused=False; remaining=0; revealed=False; round_winners=[]; round_submissions={}; started=False; auto_advance=False; categories=[]; personal_hints=set()
+clients=set(); players={}; current=None; order=[]; idx=-1; ends=0; duration=25; paused=False; remaining=0; revealed=False; round_winners=[]; round_submissions={}; started=False; auto_advance=False; categories=[]; personal_hints=set(); revoked_tokens=set()
 
 def now():return time.monotonic()
 def safe_player(p):return {'id':p['id'],'name':p['name'],'score':p['score'],'correct':p['correct'],'online':p['online']}
@@ -120,13 +120,15 @@ async def next_question():
  idx+=1;personal_hints.clear();current=order[idx];revealed=False;paused=False;round_winners=[];round_submissions={};current['hintShown']=False;ends=now()+duration
  await broadcast({'type':'effect','kind':'next','message':'새 문제가 시작됐어요!'})
 async def handle(ws,obj):
- global ends,paused,remaining,revealed
+ global ends,paused,remaining,revealed,current,order,idx,started,personal_hints,round_winners,round_submissions
  act=obj.get('action');role=ws._role; pid=ws._pid
  if act=='join':
   if role=='host':return
   name=str(obj.get('name','')).strip()[:16]
   token=str(obj.get('token',''))[:100]
   if not name:return await send(ws,{'type':'error','message':'이름을 입력해 주세요.'})
+  if token in revoked_tokens:
+   token=''  # 강제 퇴장된 토큰은 다시 사용하지 않음
   if token in players:
    p=players[token];p.update(name=name,online=True)
   else:
@@ -138,7 +140,7 @@ async def handle(ws,obj):
    personal_hints.add(pid);await send(ws,state(role,pid))
   return
  if act=='answer':
-  if role!='player' or not pid or not current or revealed or paused or seconds_left()<=0:return
+  if role!='player' or not pid or pid not in players or not current or revealed or paused or seconds_left()<=0:return
   if round_submissions.get(pid,0)>=2:return await send(ws,{'type':'feedback','correct':False,'message':'이번 문제는 2번까지만 제출할 수 있어요.'})
   ans=''.join(str(obj.get('value','')).split()).lower(); gold=''.join(current['text'].split()).lower()
   if not ans:return
@@ -169,11 +171,27 @@ async def handle(ws,obj):
   await broadcast()
  elif act=='reset':
   for p in players.values():p['score']=0;p['correct']=0
-  await broadcast()
+  await broadcast({'type':'effect','kind':'score_reset','message':'모든 점수가 0점으로 초기화됐습니다.'})
  elif act=='kick':
   target=str(obj.get('id',''))
-  if target in players:del players[target]
-  await broadcast()
+  if target in players:
+   revoked_tokens.add(target)
+   del players[target]
+   personal_hints.discard(target);round_submissions.pop(target,None)
+   for c in list(clients):
+    if getattr(c,'_pid',None)==target:
+     c._pid=None;c._role='guest'
+     await send(c,{'type':'removed','message':'사회자가 참가자 목록에서 퇴장시켰습니다. 다시 참가하려면 이름을 입력해 주세요.'})
+   await broadcast({'type':'effect','kind':'removed','message':'참가자를 퇴장시켰습니다.'})
+ elif act=='clear_all':
+  for target in list(players):revoked_tokens.add(target)
+  players.clear();personal_hints.clear();round_winners=[];round_submissions={}
+  current=None;order=[];idx=-1;ends=0;remaining=0;started=False;revealed=False;paused=False
+  for c in list(clients):
+   if getattr(c,'_role',None)=='player':
+    c._role='guest';c._pid=None
+    await send(c,{'type':'removed','message':'사회자가 게임을 전체 초기화했습니다. 새로 참가해 주세요.'})
+  await broadcast({'type':'effect','kind':'clear_all','message':'참가자·점수·문제를 모두 초기화했습니다.'})
 
 async def ws_handler(request):
  ws=web.WebSocketResponse(heartbeat=25);await ws.prepare(request)
