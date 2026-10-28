@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: mt-chosung-party
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /config
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: HOST_PIN
+        generateValue: true
