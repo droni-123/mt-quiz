@@ -6,37 +6,60 @@ import qrcode
 ROOT=Path(__file__).resolve().parent
 PORT=int(os.environ.get('PORT','8765'))
 PIN=os.environ.get('HOST_PIN') or str(random.randint(1000,9999))
-TEAMS=['🔥 불꽃팀','⚡ 번개팀','🌊 파도팀','🌟 별빛팀']
-RAW=[
-('음식','ㄱㅊㅉㄱ','김치찌개','한국인의 소울푸드, 빨간 국물'),('음식','ㅂㅂㅂ','비빔밥','여러 재료를 섞어서 먹는 밥'),('음식','ㄸㅂㅇ','떡볶이','분식집의 대표 메뉴'),('음식','ㅅㄱㅅ','삼겹살','불판에 구워 먹는 고기'),('음식','ㅂㅅㅌ','붕어빵','겨울철 길거리 간식'),('음식','ㅁㄹㅌ','마라탕','얼얼한 맛의 중국식 국물'),('음식','ㅊㅋㅁ','초코몽','초콜릿과 몽? 이 문제는 제외'),
-('동물','ㅋㅍㅂㄹ','카피바라','세계에서 가장 큰 설치류'),('동물','ㄱㄹ','기린','목이 아주 긴 초식동물'),('동물','ㅋㅇㄹ','코알라','유칼립투스 잎을 먹어요'),('동물','ㅍㄱ','펭귄','날지 못하지만 수영을 잘해요'),('동물','ㅂㄷㄱ','바다거북','바다에서 사는 등딱지 동물'),('동물','ㄷㄹㅈ','다람쥐','도토리를 좋아하는 작은 동물'),
-('영화·드라마','ㅂㅅㅊ','부산행','좀비가 등장하는 한국 영화'),('영화·드라마','ㄱㅅㅊ','기생충','봉준호 감독 작품'),('영화·드라마','ㅅㅈㄱ','신세계','황정민과 이정재 출연 범죄 영화'),('영화·드라마','ㅇㅈㄱㅇ','오징어게임','넷플릭스 생존 게임 드라마'),('영화·드라마','ㄷㄲㅂ','도깨비','공유가 출연한 판타지 드라마'),('영화·드라마','ㅌㅌㄴ','타이타닉','유명한 대형 여객선 영화'),
-('일상·상식','ㅅㅁㅍ','스마트폰','손에 들고 다니는 통신 기기'),('일상·상식','ㅂㅈㄱ','보조개','웃으면 볼에 쏙 들어가는 부분'),('일상·상식','ㅊㅅㅌ','충전탭','전기 연결 도구? 제외'),('일상·상식','ㄴㅈㅇ','냉장고','음식물을 차갑게 보관해요'),('일상·상식','ㅈㄷㅊ','자동차','도로를 달리는 교통수단'),('일상·상식','ㅎㄷㅍ','핸드폰','전화와 인터넷이 가능한 기기'),('일상·상식','ㅇㅅㅋㄹ','아이스크림','차갑고 달콤한 간식'),
-('MT·레크','ㅂㅂㅂ','복불복','운에 따라 벌칙이 달라지는 게임'),('MT·레크','ㅁㅊㄱㅇ','몸치게임','몸동작으로 추리하는 게임? 제외'),('MT·레크','ㅂㅅㄱㅇ','빙수게임','얼음 디저트 게임? 제외'),('MT·레크','ㅅㅁㄱㅇ','신문게임','신문지 위에서 버티는 게임'),('MT·레크','ㅈㄱㅊㄱ','장기자랑','모임에서 재능을 보여주는 시간'),('MT·레크','ㅇㄱㄷㅈ','인간도전','제외'),('MT·레크','ㅈㅇㅈ','제일조','제외'),('MT·레크','ㄱㅊㄱㅇ','고추게임','제외'),('MT·레크','ㅅㅅㄱㅇ','순서게임','순서를 맞추는 활동'),
-('여행·장소','ㅈㅈㄷ','제주도','돌하르방과 한라산이 있는 섬'),('여행·장소','ㅎㄹㅅ','한라산','제주도의 높은 산'),('여행·장소','ㄴㅅㅌ','남산타워','서울의 전망대'),('여행·장소','ㄱㅂㄱ','경복궁','서울의 대표 궁궐'),('여행·장소','ㄱㄷㄹ','광대리','제외'),('여행·장소','ㅂㄷㅂ','바닷바람','해변에서 부는 바람'),
+RAW = [
+    ('음식', '김치찌개', '김치가 들어간 빨간 찌개'),
+    ('음식', '떡볶이', '매콤달콤한 떡 요리'),
+    ('음식', '비빔밥', '나물과 밥을 비벼 먹어요'),
+    ('음식', '삼겹살', '불판 위에서 굽는 돼지고기'),
+    ('음식', '치킨', '닭을 튀긴 배달 음식'),
+    ('음식', '피자', '동그란 도우 위에 치즈가 올라가요'),
+    ('음식', '햄버거', '빵 사이에 고기 패티가 있어요'),
+    ('음식', '라면', '냄비에 끓이는 면 요리'),
+    ('음식', '김밥', '김에 밥과 채소를 말았어요'),
+    ('음식', '아이스크림', '여름에 먹는 차가운 디저트'),
+    ('음식', '수박', '초록 껍질과 빨간 속살의 과일'),
+    ('음식', '바나나', '노랗고 길쭉한 과일'),
+    ('음식', '딸기', '빨갛고 씨가 바깥쪽에 있는 과일'),
+    ('음식', '붕어빵', '물고기 모양 겨울 간식'),
+    ('음식', '커피', '카페에서 자주 마시는 카페인 음료'),
+    ('동물', '강아지', '멍멍 짖는 반려동물'),
+    ('동물', '고양이', '야옹 하고 우는 반려동물'),
+    ('동물', '토끼', '귀가 길고 깡충깡충 뛰어요'),
+    ('동물', '기린', '목이 가장 유명하게 긴 동물'),
+    ('동물', '코끼리', '긴 코와 큰 귀가 있어요'),
+    ('동물', '호랑이', '주황색 털에 검은 줄무늬'),
+    ('동물', '사자', '갈기가 있는 백수의 왕'),
+    ('동물', '펭귄', '검은색과 흰색 몸으로 뒤뚱뒤뚱 걸어요'),
+    ('동물', '돌고래', '바다에서 똑똑하기로 유명해요'),
+    ('동물', '다람쥐', '도토리를 모으는 작은 동물'),
+    ('동물', '얼룩말', '흑백 줄무늬가 있는 말과 동물'),
+    ('일상', '휴대폰', '전화도 하고 사진도 찍어요'),
+    ('일상', '컴퓨터', '키보드와 마우스로 조작해요'),
+    ('일상', '냉장고', '음식을 시원하게 보관하는 가전제품'),
+    ('일상', '자동차', '네 바퀴로 도로를 달려요'),
+    ('일상', '우산', '비 올 때 머리 위에 펼쳐요'),
+    ('일상', '칫솔', '이를 닦을 때 사용해요'),
+    ('일상', '가방', '물건을 넣고 메고 다녀요'),
+    ('일상', '선풍기', '날개가 돌아가 시원한 바람을 만들어요'),
+    ('일상', '에어컨', '여름철 실내를 시원하게 해요'),
+    ('일상', '이어폰', '귀에 꽂아 음악을 들어요'),
+    ('장소', '학교', '학생들이 공부하러 가는 곳'),
+    ('장소', '편의점', '24시간 운영하는 곳도 있는 작은 가게'),
+    ('장소', '도서관', '조용히 책을 읽거나 공부하는 곳'),
+    ('장소', '놀이공원', '롤러코스터를 탈 수 있는 곳'),
+    ('장소', '제주도', '한라산과 돌하르방으로 유명한 섬'),
+    ('장소', '한라산', '제주도에 있는 높은 산'),
+    ('장소', '바다', '파도가 치는 넓은 물'),
+    ('장소', '공항', '비행기를 타고 내리는 곳'),
+    ('장소', '영화관', '큰 스크린으로 영화를 보는 곳'),
+    ('MT·놀이', '노래방', '마이크를 잡고 노래 부르는 곳'),
+    ('MT·놀이', '가위바위보', '손으로 셋 중 하나를 내는 놀이'),
+    ('MT·놀이', '숨바꼭질', '술래가 숨은 사람을 찾는 놀이'),
+    ('MT·놀이', '보물찾기', '숨겨 놓은 물건을 찾아요'),
+    ('MT·놀이', '장기자랑', '사람들 앞에서 노래나 춤을 선보여요'),
+    ('MT·놀이', '눈치게임', '서로 눈치를 보며 숫자를 외쳐요'),
+    ('MT·놀이', '물총놀이', '물총으로 물을 쏘며 놀아요'),
 ]
-RAW.extend([
-('음식','','순두부찌개','부드러운 두부가 들어간 얼큰한 찌개'),
-('음식','','감자탕','등뼈와 감자를 푹 끓인 음식'),
-('음식','','치즈볼','치즈가 들어간 동그란 간식'),
-('음식','','닭갈비','춘천이 유명한 철판 요리'),
-('동물','','고슴도치','몸에 가시가 있는 작은 포유류'),
-('동물','','하마','입이 아주 크고 물속을 좋아하는 동물'),
-('동물','','오랑우탄','긴 팔을 지닌 유인원'),
-('동물','','얼룩말','검고 흰 줄무늬가 있는 동물'),
-('영화·드라마','','극한직업','치킨집을 운영하는 형사들 영화'),
-('영화·드라마','','범죄도시','마동석 주연 액션 영화 시리즈'),
-('영화·드라마','','미스터션샤인','대한제국 말기를 배경으로 한 드라마'),
-('일상·상식','','이어폰','귀에 꽂고 소리를 듣는 기기'),
-('일상·상식','','전자레인지','음식물을 빠르게 데우는 가전제품'),
-('일상·상식','','노트북','휴대용 컴퓨터'),
-('MT·레크','','눈치게임','순서를 서로 눈치 보며 말하는 게임'),
-('MT·레크','','손병호게임','손가락을 접으며 진행하는 게임'),
-('MT·레크','','의자게임','음악이 멈추면 앉는 놀이'),
-('여행·장소','','남이섬','가평 근처의 유명한 관광 섬'),
-('여행·장소','','광안대교','부산 바다를 가로지르는 큰 다리'),
-('여행·장소','','롯데월드','잠실에 있는 놀이공원'),
-])
 CHOSE='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'
 def initial(word):
  out=''
@@ -45,21 +68,20 @@ def initial(word):
   if 0<=v<11172:out+=CHOSE[v//588]
   elif c.isalpha():out+=c
  return out
-QUESTIONS=[{'cat':c,'text':w,'hint':h,'initial':initial(w)} for c,i,w,h in RAW if not h.endswith('제외') and (initial(w)==i or not i)]
+QUESTIONS=[{'cat':c,'text':w,'hint':h,'initial':initial(w)} for c,w,h in RAW]
 assert len(QUESTIONS)>=40, len(QUESTIONS)
-clients=set(); players={}; current=None; order=[]; idx=-1; ends=0; duration=25; paused=False; remaining=0; revealed=False; round_winners=[]; round_submissions={}; started=False; auto_advance=False; categories=[]
+clients=set(); players={}; current=None; order=[]; idx=-1; ends=0; duration=25; paused=False; remaining=0; revealed=False; round_winners=[]; round_submissions={}; started=False; auto_advance=False; categories=[]; personal_hints=set()
 
 def now():return time.monotonic()
-def safe_player(p):return {'id':p['id'],'name':p['name'],'team':p['team'],'score':p['score'],'correct':p['correct'],'online':p['online']}
+def safe_player(p):return {'id':p['id'],'name':p['name'],'score':p['score'],'correct':p['correct'],'online':p['online']}
 def scoreboard():
- scores=[{'name':t,'score':sum(p['score'] for p in players.values() if p['team']==t),'correct':sum(p['correct'] for p in players.values() if p['team']==t)} for t in TEAMS]
- return sorted(scores,key=lambda x:(-x['score'],-x['correct'],x['name']))
+ return sorted([{'name':p['name'],'score':p['score'],'correct':p['correct']} for p in players.values()], key=lambda x:(-x['score'],-x['correct'],x['name']))
 def seconds_left():return max(0,round(remaining if paused else ends-now(),1)) if current else 0
 def state(role,pid=None):
  q=None
  if current:
-  q={'index':idx+1,'total':len(order),'cat':current['cat'],'initial':current['initial'],'hint':current['hint'] if current.get('hintShown') else None,'answer':current['text'] if revealed else None,'remaining':seconds_left(),'duration':duration,'revealed':revealed,'paused':paused,'winners':round_winners}
- return {'type':'state','role':role,'q':q,'players':sorted([safe_player(p) for p in players.values()],key=lambda p:(-p['score'],p['name'])),'teams':TEAMS,'standings':scoreboard(),'started':started,'finished':started and idx==len(order)-1 and revealed,'count':len(order),'myId':pid,'submitted':round_submissions.get(pid,0),'correctMe':any(x['id']==pid for x in round_winners),'pin':PIN if role=='host' else None}
+  q={'index':idx+1,'total':len(order),'cat':current['cat'],'initial':current['initial'],'hint':current['hint'] if current.get('hintShown') or (pid in personal_hints) else None,'answer':current['text'] if revealed else None,'remaining':seconds_left(),'duration':duration,'revealed':revealed,'paused':paused,'winners':round_winners}
+ return {'type':'state','role':role,'q':q,'players':sorted([safe_player(p) for p in players.values()],key=lambda p:(-p['score'],p['name'])),'teams':[],'standings':scoreboard(),'started':started,'finished':started and idx==len(order)-1 and revealed,'count':len(order),'myId':pid,'submitted':round_submissions.get(pid,0),'correctMe':any(x['id']==pid for x in round_winners),'pin':PIN if role=='host' else None}
 async def send(ws,data):
  try:await ws.send_json(data)
  except:pass
@@ -87,15 +109,15 @@ async def start_game(opts):
   order=order[:max(5,min(len(order),int(opts['limit'])))]
  if not order:order=[dict(q) for q in QUESTIONS];random.shuffle(order)
  for p in players.values():p['score']=0;p['correct']=0
- idx=-1;started=True;current=None;revealed=False;paused=False;round_winners=[];round_submissions={}
+ personal_hints.clear();idx=-1;started=True;current=None;revealed=False;paused=False;round_winners=[];round_submissions={}
  await next_question()
 async def next_question():
- global idx,current,revealed,ends,paused,round_winners,round_submissions
+ global idx,current,revealed,ends,paused,round_winners,round_submissions,personal_hints
  if not order:return
  if idx+1>=len(order):
   await broadcast({'type':'effect','kind':'finish','message':'🏆 모든 문제가 끝났습니다!'})
   return
- idx+=1;current=order[idx];revealed=False;paused=False;round_winners=[];round_submissions={};current['hintShown']=False;ends=now()+duration
+ idx+=1;personal_hints.clear();current=order[idx];revealed=False;paused=False;round_winners=[];round_submissions={};current['hintShown']=False;ends=now()+duration
  await broadcast({'type':'effect','kind':'next','message':'새 문제가 시작됐어요!'})
 async def handle(ws,obj):
  global ends,paused,remaining,revealed
@@ -103,15 +125,18 @@ async def handle(ws,obj):
  if act=='join':
   if role=='host':return
   name=str(obj.get('name','')).strip()[:16]
-  team=str(obj.get('team',''))
   token=str(obj.get('token',''))[:100]
-  if not name or team not in TEAMS:return await send(ws,{'type':'error','message':'이름과 팀을 선택해 주세요.'})
+  if not name:return await send(ws,{'type':'error','message':'이름을 입력해 주세요.'})
   if token in players:
-   p=players[token];p.update(name=name,team=team,online=True)
+   p=players[token];p.update(name=name,online=True)
   else:
-   token=secrets.token_urlsafe(16);players[token]={'id':token,'name':name,'team':team,'score':0,'correct':0,'online':True}
+   token=secrets.token_urlsafe(16);players[token]={'id':token,'name':name,'score':0,'correct':0,'online':True}
   ws._pid=token;ws._role='player'
   await send(ws,{'type':'joined','token':token});await broadcast();return
+ if act=='my_hint':
+  if role=='player' and pid and current and not revealed:
+   personal_hints.add(pid);await send(ws,state(role,pid))
+  return
  if act=='answer':
   if role!='player' or not pid or not current or revealed or paused or seconds_left()<=0:return
   if round_submissions.get(pid,0)>=2:return await send(ws,{'type':'feedback','correct':False,'message':'이번 문제는 2번까지만 제출할 수 있어요.'})
@@ -122,7 +147,7 @@ async def handle(ws,obj):
   if correct and not any(x['id']==pid for x in round_winners):
    rank=len(round_winners);points=max(40,100-rank*20)+(20 if round_submissions[pid]==1 else 0)
    p=players[pid];p['score']+=points;p['correct']+=1
-   round_winners.append({'id':pid,'name':p['name'],'team':p['team'],'points':points})
+   round_winners.append({'id':pid,'name':p['name'],'points':points})
    await send(ws,{'type':'feedback','correct':True,'message':f'정답! +{points}점 🎉'})
    await broadcast({'type':'effect','kind':'correct','message':f"{p['name']} 정답! +{points}점"})
   else:
@@ -180,7 +205,7 @@ async def qr(request):
 async def index(request):
  return web.FileResponse(ROOT/'index.html')
 async def config(request):
- return web.json_response({'joinUrl':BASE_URL+'/?join=1','teams':TEAMS,'categories':sorted(set(q['cat'] for q in QUESTIONS)),'questionCount':len(QUESTIONS)})
+ return web.json_response({'joinUrl':BASE_URL+'/?join=1','teams':[],'categories':sorted(set(q['cat'] for q in QUESTIONS)),'questionCount':len(QUESTIONS)})
 async def on_startup(app):app['clock']=asyncio.create_task(watch_clock(app))
 async def on_cleanup(app):app['clock'].cancel()
 app=web.Application();app.router.add_get('/',index);app.router.add_get('/ws',ws_handler);app.router.add_get('/qr.png',qr);app.router.add_get('/config',config)
